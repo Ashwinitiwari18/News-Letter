@@ -17,13 +17,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
   @Autowired
   private JwtAuthenticationFilter jwtAuthenticationFilter;
+  @Autowired
+  private JwtUtil jwtUtil;
 
   @Bean
   protected SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
+    System.out.println("9");
     return http.csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(request -> request
-            .requestMatchers("/users/all").authenticated()
-            .anyRequest().permitAll()
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/users/login", "/users/signup").permitAll()
+
+            .requestMatchers("/users/{id}/assignRoles", "/users/detail/all").hasRole("ADMIN")
+            .anyRequest().authenticated()
         )
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -34,4 +39,5 @@ public class SecurityConfig {
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
+
 }

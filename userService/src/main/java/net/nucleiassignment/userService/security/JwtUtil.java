@@ -6,10 +6,13 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import net.nucleiassignment.userService.entity.Role;
 import net.nucleiassignment.userService.entity.User;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtil {
@@ -27,6 +30,7 @@ public class JwtUtil {
 
   public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
     final Claims claims = extractAllClaims(token);
+    System.out.println();
     return claimsResolver.apply(claims);
   }
 
@@ -36,7 +40,9 @@ public class JwtUtil {
 
   public String generateToken(Integer userId, Set<Role> roles) {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("roles", roles);
+    claims.put("roles", roles.stream()
+        .map(role -> role.getRoleName().replace("ROLE_", ""))
+        .collect(Collectors.toList()));
     return Jwts.builder()
         .setClaims(claims)
         .setSubject(userId.toString())
@@ -50,7 +56,14 @@ public class JwtUtil {
     return extractAllClaims(token).getSubject();
   }
 
-  // Validate token
+  public Integer extractUserIdFromContext() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication != null && authentication.getPrincipal() instanceof User) {
+      return ((User) authentication.getPrincipal()).getId();
+    }
+    return null;
+  }
+
   public boolean validateToken(String token, User userDetails) {
     final String userId = getUserIdFromToken(token);
     return (userId.equals(userDetails.getId().toString()) && !isTokenExpired(token));
@@ -62,24 +75,13 @@ public class JwtUtil {
 
   public Set<Role> getRolesFromToken(String token) {
     Claims claims = extractAllClaims(token);
-
-    // Extract the roles as a List and then convert it to a Set
-    List<?> rolesList = claims.get("roles", List.class);
-
-    // Convert the list to a Set<Role> (you might need to cast elements to Role if needed)
+    List<String> rolesList = claims.get("roles", List.class);
     Set<Role> roles = new HashSet<>();
-    for (Object roleObj : rolesList) {
-      // Cast each object in the list to Role if necessary
-      if (roleObj instanceof Role) {
-        roles.add((Role) roleObj);
-      } else {
-        // Handle the case where roles might be deserialized as another type, e.g., Map<String, Object>
-        // You may need to map these manually to Role objects
-        // Example: Map<String, Object> roleData = (Map<String, Object>) roleObj;
-        // roles.add(new Role(roleData.get("id"), roleData.get("name")));
-      }
+    for (String roleName : rolesList) {
+      Role role = new Role();
+      role.setRoleName(roleName);
+      roles.add(role);
     }
-
     return roles;
   }
 }

@@ -1,6 +1,7 @@
 package net.nucleiassignment.userService.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -30,6 +31,7 @@ public class User {
 
   @NonNull
   @Column(unique = true)
+  @Email
   private String email;
 
   @ManyToMany(fetch = FetchType.EAGER)

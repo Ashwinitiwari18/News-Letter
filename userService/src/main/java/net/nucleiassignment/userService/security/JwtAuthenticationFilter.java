@@ -11,6 +11,7 @@ import net.nucleiassignment.userService.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,10 +60,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
       User user = userService.getUserById(userId).get();
       if (jwtUtil.validateToken(jwt, user)) {
-        var authorities = roles.stream()
-            .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
+        List<GrantedAuthority> authorities = roles.stream()
+            .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName()))
             .collect(Collectors.toList());
-
         var authToken = new UsernamePasswordAuthenticationToken(
             user,
             null,

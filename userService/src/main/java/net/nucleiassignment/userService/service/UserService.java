@@ -23,48 +23,36 @@ public class UserService {
   private RoleRepository roleRepository;
 
   @Autowired
-  private PasswordEncoder passwordEncoder; // Use the interface
+  private PasswordEncoder passwordEncoder;
 
-  // Save a user with encrypted password
   public User saveUser(User user) {
-    user.setPassword(passwordEncoder.encode(user.getPassword())); // Use the PasswordEncoder
+    user.setPassword(passwordEncoder.encode(user.getPassword()));
     return userRepository.save(user);
   }
 
-  // Assign roles to a user
   public User assignRolesToUser(int userId, Set<Role> roles) {
-    // Fetch the user by ID
     User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
-    // Fetch and assign persisted roles from the database
     Set<Role> persistedRoles = roles.stream()
         .map(role -> roleRepository.findByRoleName(role.getRoleName())
             .orElseThrow(() -> new RuntimeException("Role not found: " + role.getRoleName())))
         .collect(Collectors.toSet());
 
-    // Assign the persisted roles to the user
     user.setRoles(persistedRoles);
 
-    // Save the user with the roles
     return userRepository.save(user);
   }
-
-  // Get all users
   public List<User> getAllUsers() {
     return userRepository.findAll();
   }
-
-  // Get user by id
   public Optional<User> getUserById(int id) {
     return userRepository.findById(id);
   }
 
-  // Delete user by id
   public void deleteUser(int id) {
     userRepository.deleteById(id);
   }
 
-  // Update user details including encrypted password
   public User updateUser(int id, User user) {
     Optional<User> existingUserOpt = userRepository.findById(id);
     if (existingUserOpt.isPresent()) {
@@ -76,7 +64,7 @@ public class UserService {
         existingUser.setFullName(user.getFullName());
       }
       if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-        existingUser.setPassword(passwordEncoder.encode(user.getPassword())); // Use the PasswordEncoder
+        existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
       }
       if (user.getEmail() != null && !user.getEmail().isEmpty()) {
         existingUser.setEmail(user.getEmail());
@@ -87,7 +75,6 @@ public class UserService {
     }
   }
 
-  // Get all roles
   public List<Role> getAllRoles() {
     return roleRepository.findAll();
   }

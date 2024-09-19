@@ -20,7 +20,6 @@ public class Role implements GrantedAuthority {
 
   @Override
   public String getAuthority() {
-    // The authority that will be used by Spring Security
-    return roleName;  // Return the role name as the authority
+    return roleName;
   }
 }
