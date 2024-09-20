@@ -60,7 +60,7 @@ public class UserController {
       try {
         Optional<User> user = userService.getUserById(id);
         if (user.isPresent()) {
-          return new ResponseEntity<>(user.get(), HttpStatus.OK);
+          return new ResponseEntity<>(userMapper.toUserDTO(user.get()), HttpStatus.OK);
         } else {
           return new ResponseEntity<>("User not found with id: " + id, HttpStatus.NOT_FOUND);
         }
@@ -72,7 +72,7 @@ public class UserController {
     }
   }
 
-  @GetMapping("/getByToken")
+  @GetMapping("/getUserByToken")
   public ResponseEntity<?> getUserByToken(HttpServletRequest request) {
     try {
       final String authorizationHeader = request.getHeader("Authorization");
@@ -99,7 +99,7 @@ public class UserController {
   public ResponseEntity<?> assignRolesToUser(@PathVariable int id, @RequestBody Set<Role> roles) {
     try {
       User user = userService.assignRolesToUser(id, roles);
-      return new ResponseEntity<>(user, HttpStatus.OK);
+      return new ResponseEntity<>(userMapper.toUserDTO(user), HttpStatus.OK);
     } catch (Exception e) {
       return new ResponseEntity<>("An error occurred while assigning roles.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -109,7 +109,7 @@ public class UserController {
   public ResponseEntity<?> createUser(@RequestBody User user) {
     try {
       User savedUser = userService.saveUser(user);
-      return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+      return new ResponseEntity<>(userMapper.toUserDTO(savedUser), HttpStatus.CREATED);
     } catch (Exception e) {
       return new ResponseEntity<>("An error occurred while creating the user.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -148,7 +148,7 @@ public class UserController {
     if (isCurrentUser(id) || isAdmin()) {
       try {
         User updatedUser = userService.updateUser(id, user);
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.ok(userMapper.toUserDTO(updatedUser));
       } catch (Exception e) {
         return new ResponseEntity<>("Error updating user", HttpStatus.INTERNAL_SERVER_ERROR);
       }

@@ -1,4 +1,4 @@
-package net.nucleiassignment.subscriptionService.entity;
+package net.nucleiassignment.newsLetterService.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

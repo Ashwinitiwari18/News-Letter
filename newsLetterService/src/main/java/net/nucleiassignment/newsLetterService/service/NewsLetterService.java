@@ -1,7 +1,7 @@
-package net.nucleiassignment.subscriptionService.service;
+package net.nucleiassignment.newsLetterService.service;
 
-import net.nucleiassignment.subscriptionService.entity.NewsLetter;
-import net.nucleiassignment.subscriptionService.repository.NewsLetterRepository;
+import net.nucleiassignment.newsLetterService.entity.NewsLetter;
+import net.nucleiassignment.newsLetterService.repository.NewsLetterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
