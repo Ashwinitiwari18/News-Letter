@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.sql.Time;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity
@@ -30,5 +31,5 @@ public class NewsLetter {
   private LocalDateTime createdAt;
 
   @NonNull
-  private Time duration;
+  private Duration duration;
 }

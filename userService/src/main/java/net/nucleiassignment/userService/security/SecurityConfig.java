@@ -24,10 +24,9 @@ public class SecurityConfig {
   protected SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
     return http.csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/users/login", "/users/signup").permitAll()
-
+            .requestMatchers("/users/getUserByToken","/users//delete/**","/users/update/**").authenticated()
             .requestMatchers("/users/{id}/assignRoles", "/users/detail/all").hasRole("ADMIN")
-            .anyRequest().authenticated()
+            .anyRequest().permitAll()
         )
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
