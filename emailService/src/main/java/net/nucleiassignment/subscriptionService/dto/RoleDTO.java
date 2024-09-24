@@ -1,4 +1,4 @@
-package net.nucleiassignment.newsLetterService.entity;
+package net.nucleiassignment.subscriptionService.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

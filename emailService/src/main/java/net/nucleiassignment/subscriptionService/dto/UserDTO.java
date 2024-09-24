@@ -1,8 +1,7 @@
-package net.nucleiassignment.userService.dto;
+package net.nucleiassignment.subscriptionService.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.nucleiassignment.userService.entity.Role;
 
 import java.util.Set;
 
@@ -13,5 +12,5 @@ public class UserDTO {
   private String userName;
   private String fullName;
   private String email;
-  private Set<Role> roles;
+  private Set<RoleDTO> roles;
 }

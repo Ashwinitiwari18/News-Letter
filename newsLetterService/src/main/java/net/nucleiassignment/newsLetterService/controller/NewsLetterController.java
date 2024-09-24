@@ -59,9 +59,9 @@ public class NewsLetterController {
     try{
       Optional<NewsLetter> newsLetter = newsLetterService.getNewsLetterById(id);
       if (newsLetter.isPresent()){
-        return new ResponseEntity<>(newsLetter.get(),HttpStatus.FOUND);
-      }else {
-        return new ResponseEntity<>("NewsLetter Not Found",HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(newsLetter.get(), HttpStatus.OK);
+      } else {
+        return new ResponseEntity<>("NewsLetter Not Found", HttpStatus.NOT_FOUND);
       }
     }catch (Exception e){
       return new ResponseEntity<>("An error occurred while fetching News Letters.",HttpStatus.INTERNAL_SERVER_ERROR);

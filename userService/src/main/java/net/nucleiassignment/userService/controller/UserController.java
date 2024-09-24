@@ -56,19 +56,15 @@ public class UserController {
 
   @GetMapping("/{id}")
   public ResponseEntity<?> getUserById(@PathVariable int id) {
-    if (isCurrentUser(id) || isAdmin()){
-      try {
-        Optional<User> user = userService.getUserById(id);
-        if (user.isPresent()) {
-          return new ResponseEntity<>(userMapper.toUserDTO(user.get()), HttpStatus.OK);
-        } else {
-          return new ResponseEntity<>("User not found with id: " + id, HttpStatus.NOT_FOUND);
-        }
-      } catch (Exception e) {
-        return new ResponseEntity<>("An error occurred while fetching the user.", HttpStatus.INTERNAL_SERVER_ERROR);
+    try {
+      Optional<User> user = userService.getUserById(id);
+      if (user.isPresent()) {
+        return new ResponseEntity<>(userMapper.toUserDTO(user.get()), HttpStatus.OK);
+      } else {
+        return new ResponseEntity<>("User not found with id: " + id, HttpStatus.NOT_FOUND);
       }
-    }else {
-      return new ResponseEntity<>("Unauthorized access", HttpStatus.FORBIDDEN);
+    } catch (Exception e) {
+      return new ResponseEntity<>("An error occurred while fetching the user.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -109,6 +105,7 @@ public class UserController {
   public ResponseEntity<?> createUser(@RequestBody User user) {
     try {
       User savedUser = userService.saveUser(user);
+      System.out.println("controller " + savedUser);
       return new ResponseEntity<>(userMapper.toUserDTO(savedUser), HttpStatus.CREATED);
     } catch (Exception e) {
       return new ResponseEntity<>("An error occurred while creating the user.", HttpStatus.INTERNAL_SERVER_ERROR);
