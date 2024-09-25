@@ -1,10 +1,8 @@
 package net.nucleiassignment.subscriptionService.service;
 
-import net.nucleiassignment.subscriptionService.dto.EmailMessage;
 import net.nucleiassignment.subscriptionService.dto.NewsLetterDTO;
 import net.nucleiassignment.subscriptionService.dto.UserDTO;
 import net.nucleiassignment.subscriptionService.entity.UserSubscription;
-import net.nucleiassignment.subscriptionService.kafka.EmailProducer;
 import net.nucleiassignment.subscriptionService.repository.UserSubscriptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -22,15 +20,9 @@ public class UserSubscriptionService {
   @Autowired
   private UserSubscriptionRepository userSubscriptionRepository;
   @Autowired
-  private UserServiceClient userServiceClient;
+  private UserClientService userClientService;
   @Autowired
-  private NewsLetterServiceClient newsLetterServiceClient;
-
-  @Autowired
-  private EmailService emailService;
-
-  @Autowired
-  private EmailProducer emailProducer;
+  private NewsLetterClientService newsLetterClientService;
 
   @Cacheable(value = "subscriptions", key = "#id")
   public Optional<UserSubscription> findSubscriptionById(Integer id){
@@ -40,14 +32,13 @@ public class UserSubscriptionService {
   public List<UserSubscription> findAllSubscription(String authorizationHeader){
     UserDTO user = getUser(authorizationHeader);
     boolean isAdmin = user != null && user.getRoles().stream()
-        .anyMatch(role -> "ROLE_ADMIN".equals(role.getRoleName()));
+            .anyMatch(role -> "ROLE_ADMIN".equals(role.getRoleName()));
     if (isAdmin){
       return userSubscriptionRepository.findAll();
     }else {
       throw new RuntimeException("User is not admin.");
     }
   }
-
 
   public UserSubscription saveSubscription(String authorizationHeader,int newsLetterId){
     UserSubscription userSubscription = new UserSubscription();
@@ -98,7 +89,7 @@ public class UserSubscriptionService {
 
   public UserDTO getUserById(Integer userId) {
     try {
-      UserDTO user = userServiceClient.getUserById(userId);
+      UserDTO user = userClientService.getUserById(userId);
       if (user != null) {
         return user;
       } else {
@@ -113,59 +104,22 @@ public class UserSubscriptionService {
     List<UserSubscription> subscriptions = userSubscriptionRepository.findByNewsLetterId(newsletterId);
 
     return subscriptions.stream()
-        .map(UserSubscription::getUserId)
-        .collect(Collectors.toList());
-  }
-
-  public void sendNewsletterToSubscribedUsers(Integer newsletterId, String authorizationHeader) {
-    if (!isAdmin(authorizationHeader)) {
-      throw new RuntimeException("Only admin can send newsletters to the users");
-    }
-
-    List<Integer> subscribedUsers = getUsersSubscribedToNewsletter(newsletterId);
-    NewsLetterDTO newsletter = getNewsLetter(authorizationHeader, newsletterId);
-
-    String subject = "Newsletter: " + newsletter.getTitle();
-    String emailContent = "Dear Subscriber,\n\n" +
-            "Here is the latest edition of the newsletter:\n" + newsletter.getContent() + "\n\n" +
-            "Best regards,\nNewsletter Team";
-
-    for (Integer userId : subscribedUsers) {
-      UserDTO user = getUserById(userId);
-
-      // Create EmailMessage DTO
-      EmailMessage emailMessage = new EmailMessage();
-      emailMessage.setTo(user.getEmail());
-      emailMessage.setSubject(subject);
-      emailMessage.setBody(emailContent);
-
-      // Send email event to Kafka
-      emailProducer.sendEmailMessage(emailMessage);
-    }
+            .map(UserSubscription::getUserId)
+            .collect(Collectors.toList());
   }
 
   private UserDTO getUser(String token){
-    UserDTO userDTO = userServiceClient.getUserByToken(token);
+    UserDTO userDTO = userClientService.getUserByToken(token);
     if (userDTO==null){
       throw new RuntimeException("User token invalid");
     }
     return userDTO;
   }
-  private NewsLetterDTO getNewsLetter(String token,int id){
-    NewsLetterDTO newsLetterDTO = newsLetterServiceClient.findById(token,id);
+  NewsLetterDTO getNewsLetter(String token, int id){
+    NewsLetterDTO newsLetterDTO = newsLetterClientService.findById(token,id);
     if (newsLetterDTO==null){
       throw new RuntimeException("News Letter id not found");
     }
     return newsLetterDTO;
-  }
-
-  private boolean isAdmin(String authorizationHeader){
-    try {
-      UserDTO userDTO = userServiceClient.getUserByToken(authorizationHeader);
-      return userDTO != null && userDTO.getRoles().stream()
-              .anyMatch(role -> "ROLE_ADMIN".equals(role.getRoleName()));
-    } catch (Exception e) {
-      return false;
-    }
   }
 }

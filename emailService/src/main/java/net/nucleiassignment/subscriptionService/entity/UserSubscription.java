@@ -6,13 +6,16 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import net.nucleiassignment.subscriptionService.enums.SubsrciptionStatus;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
 @Data
 @NoArgsConstructor
 @Table(name = "subscriptions")
-public class UserSubscription {
+public class UserSubscription implements Serializable {
+  private static final long serialVersionUID = 1L;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;

@@ -5,6 +5,9 @@ import net.nucleiassignment.userService.entity.User;
 import net.nucleiassignment.userService.repository.RoleRepository;
 import net.nucleiassignment.userService.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -46,14 +49,18 @@ public class UserService {
   public List<User> getAllUsers() {
     return userRepository.findAll();
   }
+
+  @Cacheable(value = "users", key = "#id")
   public Optional<User> getUserById(int id) {
     return userRepository.findById(id);
   }
 
+  @CacheEvict(value = "users", key = "#id")
   public void deleteUser(int id) {
     userRepository.deleteById(id);
   }
 
+  @CachePut(value = "users", key = "#id")
   public User updateUser(int id, User user) {
     Optional<User> existingUserOpt = userRepository.findById(id);
     if (existingUserOpt.isPresent()) {

@@ -3,6 +3,9 @@ package net.nucleiassignment.newsLetterService.service;
 import net.nucleiassignment.newsLetterService.entity.NewsLetter;
 import net.nucleiassignment.newsLetterService.repository.NewsLetterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,18 +22,22 @@ public class NewsLetterService {
     return newsLetterRepository.save(newsLetter);
   }
 
+  @Cacheable(value = "newsLetter", key = "#id")
   public Optional<NewsLetter> getNewsLetterById(int id){
     return newsLetterRepository.findById(id);
   }
+
 
   public List<NewsLetter> getAllNewsLetter(){
     return newsLetterRepository.findAll();
   }
 
+  @CacheEvict(value = "newsLetter", key = "#id")
   public void deleteNewsLetterById(int id){
     newsLetterRepository.deleteById(id);
   }
 
+  @CachePut(value = "newsLetter", key = "#id")
   public NewsLetter updateNewsLetter(int id,NewsLetter newsLetter){
     Optional<NewsLetter> existingNewsLetterOpt = newsLetterRepository.findById(id);
     if (existingNewsLetterOpt.isPresent()){

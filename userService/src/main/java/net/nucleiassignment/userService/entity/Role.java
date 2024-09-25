@@ -5,11 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @Entity
 @Table(name = "roles")
-public class Role implements GrantedAuthority {
+public class Role implements GrantedAuthority, Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

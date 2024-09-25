@@ -17,8 +17,6 @@ public class UserSubscriptionController {
   @Autowired
   private UserSubscriptionService userSubscriptionService;
 
-
-
   @GetMapping("/{id}")
   public ResponseEntity<?> getSubscriptionById(@PathVariable Integer id) {
     try {
