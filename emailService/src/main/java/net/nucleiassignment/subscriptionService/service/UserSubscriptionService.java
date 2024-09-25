@@ -6,8 +6,10 @@ import net.nucleiassignment.subscriptionService.entity.UserSubscription;
 import net.nucleiassignment.subscriptionService.repository.UserSubscriptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,6 +42,7 @@ public class UserSubscriptionService {
     }
   }
 
+  @Transactional
   public UserSubscription saveSubscription(String authorizationHeader,int newsLetterId){
     UserSubscription userSubscription = new UserSubscription();
     try{
@@ -56,6 +59,8 @@ public class UserSubscriptionService {
     return userSubscriptionRepository.save(userSubscription);
   }
 
+  @Transactional
+  @CachePut(value = "users", key = "#subscriptionId")
   public UserSubscription updateSubscription(String authorizationHeader,int subscriptionId,UserSubscription userSubscription) {
     Optional<UserSubscription> oldEntryOpt = userSubscriptionRepository.findById(subscriptionId);
     if (oldEntryOpt.isPresent()) {

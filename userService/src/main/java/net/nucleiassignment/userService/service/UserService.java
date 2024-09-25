@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,12 +29,14 @@ public class UserService {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
+  @Transactional
   public User saveUser(User user) {
     user.setPassword(passwordEncoder.encode(user.getPassword()));
     System.out.println("service " + user);
     return userRepository.save(user);
   }
 
+  @CachePut(value = "users", key = "#userId")
   public User assignRolesToUser(int userId, Set<Role> roles) {
     User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -60,6 +63,7 @@ public class UserService {
     userRepository.deleteById(id);
   }
 
+  @Transactional
   @CachePut(value = "users", key = "#id")
   public User updateUser(int id, User user) {
     Optional<User> existingUserOpt = userRepository.findById(id);

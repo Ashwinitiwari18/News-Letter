@@ -24,7 +24,7 @@ public class SecurityConfig {
   protected SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
     return http.csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/users/getUserByToken","/users//delete/**","/users/update/**").authenticated()
+            .requestMatchers("/users/getUserByToken","/users/delete/**","/users/update/**").authenticated()
             .requestMatchers("/users/{id}/assignRoles", "/users/detail/all").hasRole("ADMIN")
             .anyRequest().permitAll()
         )
@@ -37,5 +37,4 @@ public class SecurityConfig {
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
-
 }

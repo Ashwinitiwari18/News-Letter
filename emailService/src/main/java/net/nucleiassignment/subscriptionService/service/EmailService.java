@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class EmailService {
     mailSender.send(message);
   }
 
+  @Transactional
   public void sendNewsletterToSubscribedUsers(Integer newsletterId, String authorizationHeader) {
     if (isAdmin(authorizationHeader)) {
       throw new RuntimeException("Only admin can send newsletters to the users");
@@ -55,7 +57,6 @@ public class EmailService {
       emailMessage.setSubject(subject);
       emailMessage.setBody(emailContent);
 
-      // Send email event to Kafka
       emailProducer.sendEmailMessage(emailMessage);
     }
   }

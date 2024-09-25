@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +18,7 @@ public class NewsLetterService {
   @Autowired
   private NewsLetterRepository newsLetterRepository;
 
+  @Transactional
   public NewsLetter saveNewsLetter(NewsLetter newsLetter){
     newsLetter.setCreatedAt(LocalDateTime.now());
     return newsLetterRepository.save(newsLetter);
@@ -37,6 +39,7 @@ public class NewsLetterService {
     newsLetterRepository.deleteById(id);
   }
 
+  @Transactional
   @CachePut(value = "newsLetter", key = "#id")
   public NewsLetter updateNewsLetter(int id,NewsLetter newsLetter){
     Optional<NewsLetter> existingNewsLetterOpt = newsLetterRepository.findById(id);
